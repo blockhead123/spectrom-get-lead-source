@@ -60,9 +60,10 @@ class SpectromGetLeadSource{
 	 *
 	 * @since     1.0.0
 	 */
-	private function __construct() {
+	private function __construct()
+    {
 
-		// Load plugin text domain
+        // Load plugin text domain
 		add_action("init", array($this, "load_plugin_textdomain"));
 
 		// Add the options page and menu item.
@@ -76,20 +77,42 @@ class SpectromGetLeadSource{
 		add_action("wp_enqueue_scripts", array($this, "enqueue_styles"));
 		add_action("wp_enqueue_scripts", array($this, "enqueue_scripts"));
 
-		// Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-		add_action("TODO", array($this, "action_method_name"));
-		add_filter("TODO", array($this, "filter_method_name"));
+        // Load GET params validations
+        add_action('init', array($this, "get_params_validation"));
+        add_filter('spectrom_get_lead_src', array($this, "get_lead_source"));
+
+
+        // Define ShortCodes.
+        add_shortcode( 'spectrom_get_lead_src', array($this, "get_lead_src_shortcode") );
 
 	}
 
-	/**
+    /**
+     * Validates GET Params Value
+     *
+     * @since 1.0.0
+     *
+     */
+    public function get_params_validation()
+    {
+
+        if(isset($_GET['lead_src'])){
+            if(trim($_GET['lead_src']) != ''){
+                setcookie('lead_src',$_GET['lead_src']);
+            }
+        }
+
+    }
+
+    /**
 	 * Return an instance of this class.
 	 *
 	 * @since     1.0.0
 	 *
 	 * @return    object    A single instance of this class.
 	 */
-	public static function get_instance() {
+	public static function get_instance()
+    {
 
 		// If the single instance hasn"t been set, set it now.
 		if (null == self::$instance) {
@@ -106,7 +129,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @param    boolean $network_wide    True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog.
 	 */
-	public static function activate($network_wide) {
+	public static function activate($network_wide)
+    {
 		// TODO: Define activation functionality here
 	}
 
@@ -117,7 +141,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @param    boolean $network_wide    True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
 	 */
-	public static function deactivate($network_wide) {
+	public static function deactivate($network_wide)
+    {
 		// TODO: Define deactivation functionality here
 	}
 
@@ -126,7 +151,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain()
+    {
 
 		$domain = $this->plugin_slug;
 		$locale = apply_filters("plugin_locale", get_locale(), $domain);
@@ -142,7 +168,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @return    null    Return early if no settings page is registered.
 	 */
-	public function enqueue_admin_styles() {
+	public function enqueue_admin_styles()
+    {
 
 		if (!isset($this->plugin_screen_hook_suffix)) {
 			return;
@@ -163,7 +190,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @return    null    Return early if no settings page is registered.
 	 */
-	public function enqueue_admin_scripts() {
+	public function enqueue_admin_scripts()
+    {
 
 		if (!isset($this->plugin_screen_hook_suffix)) {
 			return;
@@ -182,7 +210,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
+	public function enqueue_styles()
+    {
 		wp_enqueue_style($this->plugin_slug . "-plugin-styles", plugins_url("css/public.css", __FILE__), array(),
 			$this->version);
 	}
@@ -192,7 +221,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts()
+    {
 		wp_enqueue_script($this->plugin_slug . "-plugin-script", plugins_url("js/public.js", __FILE__), array("jquery"),
 			$this->version);
 	}
@@ -202,7 +232,8 @@ class SpectromGetLeadSource{
 	 *
 	 * @since    1.0.0
 	 */
-	public function add_plugin_admin_menu() {
+	public function add_plugin_admin_menu()
+    {
 		$this->plugin_screen_hook_suffix = add_plugins_page(__("Spectrom Get Lead Source - Administration", $this->plugin_slug),
 			__("Spectrom Get Lead Source", $this->plugin_slug), "read", $this->plugin_slug, array($this, "display_plugin_admin_page"));
 	}
@@ -212,34 +243,40 @@ class SpectromGetLeadSource{
 	 *
 	 * @since    1.0.0
 	 */
-	public function display_plugin_admin_page() {
-		include_once("views/admin.php");
+	public function display_plugin_admin_page()
+    {
+		include_once('views/admin.php');
 	}
 
-	/**
-	 * NOTE:  Actions are points in the execution of a page or process
-	 *        lifecycle that WordPress fires.
-	 *
-	 *        WordPress Actions: http://codex.wordpress.org/Plugin_API#Actions
-	 *        Action Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function action_method_name() {
-		// TODO: Define your action hook callback here
-	}
+    /**
+     * Gets lead source cookie value && attaches it to a filter
+     *
+     * @since    1.0.0
+     * @return   string    Returns 'net2' if not cookie is supplied
+     */
+    public function get_lead_source()
+    {
+        $lead_src = 'net2';
 
-	/**
-	 * NOTE:  Filters are points of execution in which WordPress modifies data
-	 *        before saving it or sending it to the browser.
-	 *
-	 *        WordPress Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *        Filter Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function filter_method_name() {
-		// TODO: Define your filter hook callback here
-	}
+        if(isset($_COOKIE['lead_src'])){
+            $lead_src = $_COOKIE['lead_src'];
+        }
+
+        return $lead_src;
+
+    }
+
+
+    /**
+     * Gets lead source cookie value and loads it on a shortcode
+     *
+     * @since    1.0.0
+     * @return   string    Returns 'net2' if not cookie is supplied
+     */
+    public function get_lead_src_shortcode()
+    {
+        return apply_filters('spectrom_get_lead_src','');
+
+    }
 
 }

@@ -13,7 +13,7 @@
  * @wordpress-plugin
  * Plugin Name: Spectrom Get Lead Source
  * Plugin URI:  http://zholpe.com
- * Description: Used to get lead source for Spectrom on GET URL Parameter
+ * Description: Used to get lead source for Spectrom on GET URL Parameter. Use shortcode on post and pages [spectrom_get_lead_src]
  * Version:     1.0.0
  * Author:      Oliver Ong
  * Author URI:  http://zholpe.com

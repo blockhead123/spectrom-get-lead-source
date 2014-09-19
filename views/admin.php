@@ -19,4 +19,9 @@
 
 	<!-- TODO: Provide markup for your options page here. -->
 
+    <h3>Instructions:</h3>
+    <p>
+        To use the plugin insert plugin on a page, post, content using this shortcode [spectrom_get_lead_src].
+    </p>
+
 </div>
