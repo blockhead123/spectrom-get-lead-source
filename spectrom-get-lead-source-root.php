@@ -69,14 +69,6 @@ class SpectromGetLeadSource{
 		// Add the options page and menu item.
 		add_action("admin_menu", array($this, "add_plugin_admin_menu"));
 
-		// Load admin style sheet and JavaScript.
-		add_action("admin_enqueue_scripts", array($this, "enqueue_admin_styles"));
-		add_action("admin_enqueue_scripts", array($this, "enqueue_admin_scripts"));
-
-		// Load public-facing style sheet and JavaScript.
-		add_action("wp_enqueue_scripts", array($this, "enqueue_styles"));
-		add_action("wp_enqueue_scripts", array($this, "enqueue_scripts"));
-
         // Load GET params validations
         add_action('init', array($this, "get_params_validation"));
         add_filter('spectrom_get_lead_src', array($this, "get_lead_source"));
@@ -88,7 +80,7 @@ class SpectromGetLeadSource{
 	}
 
     /**
-     * Validates GET Params Value
+     * Validates GET Params Value also sanitize the value
      *
      * @since 1.0.0
      *
@@ -97,8 +89,9 @@ class SpectromGetLeadSource{
     {
 
         if(isset($_GET['lead_src'])){
-            if(trim($_GET['lead_src']) != ''){
-                setcookie('lead_src',$_GET['lead_src']);
+            $lead_src = filter_var($_GET['lead_src'], FILTER_SANITIZE_STRING);
+            if(trim($lead_src) != ''){
+                setcookie('lead_src',$lead_src);
             }
         }
 
@@ -162,72 +155,6 @@ class SpectromGetLeadSource{
 	}
 
 	/**
-	 * Register and enqueue admin-specific style sheet.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
-	 */
-	public function enqueue_admin_styles()
-    {
-
-		if (!isset($this->plugin_screen_hook_suffix)) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ($screen->id == $this->plugin_screen_hook_suffix) {
-			wp_enqueue_style($this->plugin_slug . "-admin-styles", plugins_url("css/admin.css", __FILE__), array(),
-				$this->version);
-		}
-
-	}
-
-	/**
-	 * Register and enqueue admin-specific JavaScript.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
-	 */
-	public function enqueue_admin_scripts()
-    {
-
-		if (!isset($this->plugin_screen_hook_suffix)) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ($screen->id == $this->plugin_screen_hook_suffix) {
-			wp_enqueue_script($this->plugin_slug . "-admin-script", plugins_url("js/spectrom-get-lead-source-admin.js", __FILE__),
-				array("jquery"), $this->version);
-		}
-
-	}
-
-	/**
-	 * Register and enqueue public-facing style sheet.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles()
-    {
-		wp_enqueue_style($this->plugin_slug . "-plugin-styles", plugins_url("css/public.css", __FILE__), array(),
-			$this->version);
-	}
-
-	/**
-	 * Register and enqueues public-facing JavaScript files.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts()
-    {
-		wp_enqueue_script($this->plugin_slug . "-plugin-script", plugins_url("js/public.js", __FILE__), array("jquery"),
-			$this->version);
-	}
-
-	/**
 	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
 	 *
 	 * @since    1.0.0
@@ -258,11 +185,18 @@ class SpectromGetLeadSource{
     {
 
         $lead_src = 'net2';
-        $lead_src_from_cookie = apply_filters($_COOKIE['lead_src'],''); // filters cookie to remove exploits
 
-        if(isset($lead_src_from_cookie)){
-            if(trim($lead_src_from_cookie)!==''){
-                $lead_src = $lead_src_from_cookie;
+        if(isset($_GET["lead_src"])){
+            $lead_src_from_source =  filter_var($_GET['lead_src'], FILTER_SANITIZE_STRING);
+        }
+        else{
+            if(isset($_COOKIE['lead_src'])){
+                $lead_src_from_source = filter_var($_COOKIE['lead_src'], FILTER_SANITIZE_STRING);
+            }
+        }
+        if(isset($lead_src_from_source)){
+            if(trim($lead_src_from_source)!==''){
+                $lead_src = $lead_src_from_source;
             }
         }
 
@@ -279,7 +213,7 @@ class SpectromGetLeadSource{
      */
     public function get_lead_src_shortcode()
     {
-        return self::get_lead_source();
+        return apply_filters('spectrom_get_lead_src', '');
 
     }
 
