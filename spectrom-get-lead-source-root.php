@@ -256,10 +256,14 @@ class SpectromGetLeadSource{
      */
     public function get_lead_source()
     {
-        $lead_src = 'net2';
 
-        if(isset($_COOKIE['lead_src'])){
-            $lead_src = $_COOKIE['lead_src'];
+        $lead_src = 'net2';
+        $lead_src_from_cookie = apply_filters($_COOKIE['lead_src'],''); // filters cookie to remove exploits
+
+        if(isset($lead_src_from_cookie)){
+            if(trim($lead_src_from_cookie)!==''){
+                $lead_src = $lead_src_from_cookie;
+            }
         }
 
         return $lead_src;
@@ -275,7 +279,7 @@ class SpectromGetLeadSource{
      */
     public function get_lead_src_shortcode()
     {
-        return apply_filters('spectrom_get_lead_src','');
+        return self::get_lead_source();
 
     }
 
